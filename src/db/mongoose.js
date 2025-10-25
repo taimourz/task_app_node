@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import validator from 'validator'
 
 mongoose.connect('mongodb://127.0.0.1:27017/task-app-api', {
     useNewUrlParser: true,
@@ -6,15 +7,37 @@ mongoose.connect('mongodb://127.0.0.1:27017/task-app-api', {
 
 const User = mongoose.model('User', {
     name: {
-        type: String
+        type: String,
+        required: true,
+        trim: true
+    },
+    email: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true,
+        validate(value){
+            if(!validator.isEmail(value)){
+                throw new Error('Email is invalid')
+            }
+        }
+
     },
     age: {
-        type: Number
+        type: Number,
+        default: 0,
+        validate(value){
+            if(value < 0){
+                throw new Error('Age must be a private number')
+            }
+        }
+
     }
 })
 
 const me = new User({
-    name: "Taimour Afzal Khan",
+    name: "Taimour Afzal Khan     .      ",
+    email: "taimour@gmail.com",
     age: 26
 })
 
