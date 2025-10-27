@@ -8,75 +8,70 @@ const port = process.env.PORT || 3000
 
 app.use(express.json())
 
-app.get('/users', (req, res) => {
-    User.find({}).then((users) => {
+app.get('/users', async (req, res) => {
+
+    try{
+        const users = await User.find({})
         res.send(users)
-    }).catch((error) => {
-        res.status(404).send()
-    })
+    }catch(e){
+        res.status(404).send(e)
+    }
 })
 
-app.get('/users/:id', (req, res) => {
-    const _id = req.params.id
-
-    User.findById(_id).then((user) => {
-        
+app.get('/users/:id', async (req, res) => {
+    
+    try{
+        const _id = req.params.id
+        const user = await User.findById(_id)
         if(!user){
             return res.status(404).send()
-        }
-
-        res.status(201).send(user)
-
-    }).catch(error => {
+        }        
+        return res.status(200).send(user)
+    }catch(e){
         res.status(404).send(error)
-    })
+    }
 })
 
-app.get('/tasks', (req, res) => {
-    Task.find({}).then((tasks) => {
+app.get('/tasks', async (req, res) => {
+
+    try{
+        const tasks = await Task.find({})
         res.send(tasks)
-    }).catch((error) => {
+    }catch(e){
         res.status(404).send()
-    })
+    }
 })
 
-app.get('/tasks/:id', (req, res) => {
-    const _id = req.params.id
-
-    Task.findById(_id).then((task) => {
-        
+app.get('/tasks/:id', async (req, res) => {
+    try{
+        const _id = req.params.id
+        const task = await Task.findById(_id)
         if(!task){
             return res.status(404).send()
         }
-
         res.status(201).send(task)
-
-    }).catch(error => {
+    }catch(e){
         res.status(404).send(error)
-    })
+    }
 })
 
-app.post('/tasks', (req, res) =>{
+app.post('/tasks', async (req, res) =>{
 
-    const task = new Task(req.body)
-
-    task.save().then(() => {
+    try{
+        const task = await Task(req.body)
         res.status(201).send("Task created sucessfully")
-    }).catch((error) => {
+    }catch(e){
         res.status(400).send("Error occured: " + error)
-    })    
+    }
 })
 
-app.post('/users', (req, res) => {
-    const me = new User(req.body)
-
-    me.save().then(() => {
+app.post('/users', async (req, res) => {
+    try{
+        const me = new User(req.body)
         res.status(201).send(me)
-    }).catch((error) => {
+    }catch(e){
         res.status(400).send("Error", error)
-    })        
-
-
+    }
 })
 
 app.listen(port, () => {
