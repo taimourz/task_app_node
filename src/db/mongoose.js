@@ -31,13 +31,25 @@ const User = mongoose.model('User', {
                 throw new Error('Age must be a private number')
             }
         }
-
+    }, 
+    password: {
+        type: String,
+        required: true,
+        minlength: 7,
+        trim: true,
+        validate(value){
+            if(value.toLowerCase().includes("password")){
+                throw new Error('P assword can not be set as `passweord`')
+            }
+        }
     }
+
 })
 
 const me = new User({
     name: "Taimour Afzal Khan     .      ",
     email: "taimour@gmail.com",
+    password: "Hello123",
     age: 26
 })
 
@@ -51,17 +63,19 @@ me.save().then(() => {
 
 const Task = mongoose.model('Task', {
     description: {
-        type: String
+        type: String,
+        required: true,
+        trim: true
     },
     completed: {
-        type: Boolean
+        type: Boolean,
+        default: false
     }
 })
 
 
 const task = new Task({
-    description: "Buy Milk",
-    completed: false
+    description: "Buy Milk Final 2",
 })
 
 task.save().then(() => {
