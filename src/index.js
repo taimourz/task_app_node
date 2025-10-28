@@ -122,6 +122,44 @@ app.patch('/tasks/:id', async (req, res) => {
 
 
 
+
+app.delete('/users/:id', async (req, res) => {
+    try{
+        const _id = req.params.id
+        const user = await User.findByIdAndDelete(_id)
+
+        if(!user){
+            res.status(400).send("There was an error deleting the user")
+        }
+
+        res.send(user)
+
+    }catch(e){
+
+        res.status(500).send(e)
+
+    }
+})
+
+
+app.delete('/tasks/:id', async (req, res) => {
+    try{
+        const _id = req.params.id
+        const task = await Task.findByIdAndDelete(_id)
+
+        if(!task){
+            res.status(400).send("There was an error deleting the user")
+        }
+
+        res.send(task)
+
+    }catch(e){
+
+        res.status(500).send(e)
+
+    }
+})
+
 app.listen(port, () => {
     console.log("Listening on port 3000: ")    
 })
