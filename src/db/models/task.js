@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 
-export const Task = mongoose.model('Task', {
+
+const taskSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
@@ -11,3 +12,13 @@ export const Task = mongoose.model('Task', {
         default: false
     }
 })
+
+taskSchema.pre('save', function (next) {
+
+    const task = this
+    console.log("run this for task before saving")
+    next()
+
+})
+
+export const Task = mongoose.model('Task', taskSchema)

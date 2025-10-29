@@ -43,7 +43,13 @@ router.patch('/users/:id', async (req, res) => {
         }
 
         const _id = req.params.id
-        const user = await User.findByIdAndUpdate(_id, req.body, {new: true, runValidators: true})
+
+        const user = await User.findById(_id)
+        updates.forEach((update) => {
+            user[update] = req.body[update]
+        })        
+        await user.save()
+
         if(!user){
             res.status(401).send("There was an error while updating")
         }
@@ -75,9 +81,10 @@ router.delete('/users/:id', async (req, res) => {
 router.post('/users', async (req, res) => {
     try{
         const me = new User(req.body)
+        await me.save()
         res.status(201).send(me)
     }catch(e){
-        res.status(400).send("Error", error)
+        res.status(400).send("Error", e)
     }
 })
 
