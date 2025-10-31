@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import validator from 'validator'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -40,17 +41,33 @@ const userSchema = new mongoose.Schema({
                 throw new Error('P assword can not be set as `passweord`')
             }
         }
-    }
+    },
+    tokens: [{
+        token:{
+            type: String,
+            required: true
+        }
+    }]    
 })
 
-userSchema.statics.findByCredentials = async function (email, password) {
-    const user = await this.findOne({email})
+
+userSchema.methods.generateToken = function() {
+    const user = this
+
+    const token = jwt.sign({_id: user.id.toString()}, 'randomsecret', {expiresIn: '7 days'})
+    user.tokens = user.tokens.concat({token: token})
+
+    return token
+    
+}
+
+userSchema.statics.findByCredentials = async (email, password) => {
+    const user = await User.findOne({email})
     
     if(!user){
         throw new Error('Unable to login')
     }
     
-    debugger
     const isMatch = await bcrypt.compare(password, user.password)
     
     if(!isMatch){

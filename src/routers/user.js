@@ -80,13 +80,14 @@ router.delete('/users/:id', async (req, res) => {
 router.post('/users/login', async (req, res) => {
     try{
         const user = await User.findByCredentials( req.body.email, req.body.password )
-        debugger
-
+        
         if(!user){
             throw new Error('Unable to find the user')
         }
+        
+        const token = await user.generateToken()
 
-        res.status(200).send(user)
+        res.status(200).send({user, token})
 
     }catch(e){
         res.status(400).send(e)
@@ -98,6 +99,7 @@ router.post('/users', async (req, res) => {
     try{
         const me = new User(req.body)
         await me.save()
+        const token = await me.generateToken()
         res.status(201).send(me)
     }catch(e){
         res.status(400).send("Error", e)
