@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        unique: true,
         required: true,
         trim: true,
         lowercase: true,
@@ -19,7 +18,8 @@ const userSchema = new mongoose.Schema({
             if(!validator.isEmail(value)){
                 throw new Error('Email is invalid')
             }
-        }
+        },
+        unique: true,
 
     },
     age: {
@@ -42,12 +42,15 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    tokens: [{
-        token:{
-            type: String,
-            required: true
+    tokens: {
+    type: [{
+        token: {
+        type: String,
+        required: true
         }
-    }]    
+    }],
+    default: []
+    }
 })
 
 

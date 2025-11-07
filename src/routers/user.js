@@ -1,6 +1,7 @@
 import express from 'express'
 const router = new express.Router()
 import {User} from '../db/models/user.js'
+import {auth} from '../middleware/auth.js'
 
 router.get('/test', (req, res) => {
     res.send("This should work")
@@ -15,7 +16,40 @@ router.get('/users', async (req, res) => {
     }catch(e){
         res.status(404).send(e)
     }
+
 })
+
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
+})
+
+
+router.get('/users/logout', auth, async (req, res) => {
+    try{
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token
+        })
+        await req.user.save()
+        res.send()
+
+    }catch(e){
+        res.status(500).send()
+    }
+})
+
+
+router.get('/users/logoutAll', auth, async (req, res) => {
+    try{
+        req.user.tokens = []
+        await req.user.save()
+        res.send()
+
+    }catch(e){
+        res.status(500).send()
+    }
+})
+
+
 
 router.get('/users/:id', async (req, res) => {
     
@@ -27,7 +61,7 @@ router.get('/users/:id', async (req, res) => {
         }        
         return res.status(200).send(user)
     }catch(e){
-        res.status(404).send(error)
+        res.status(404).send(e)
     }
 })
 
@@ -72,7 +106,7 @@ router.delete('/users/:id', async (req, res) => {
 
     }catch(e){
 
-        res.status(500).send(e)
+        res.status(500).send(e.message)
 
     }
 })
@@ -86,11 +120,11 @@ router.post('/users/login', async (req, res) => {
         }
         
         const token = await user.generateToken()
-
+        user.save()
         res.status(200).send({user, token})
 
     }catch(e){
-        res.status(400).send(e)
+        res.status(400).send(e.message)
 
     }
 })
@@ -100,9 +134,10 @@ router.post('/users', async (req, res) => {
         const me = new User(req.body)
         await me.save()
         const token = await me.generateToken()
-        res.status(201).send(me)
+        await me.save()
+        res.status(201).send({me, token})
     }catch(e){
-        res.status(400).send("Error", e)
+        res.status(400).send(e.message)
     }
 })
 
