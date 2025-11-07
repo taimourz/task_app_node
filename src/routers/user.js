@@ -65,9 +65,9 @@ router.get('/users/:id', async (req, res) => {
     }
 })
 
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
     try{
-
+        
         const updates = Object.keys(req.body)
         const allowedUpdates = ['name', 'email', 'password', 'age']
         const isValidOperation = updates.every((update) => { return allowedUpdates.includes(update)})
@@ -75,34 +75,23 @@ router.patch('/users/:id', async (req, res) => {
         if(!isValidOperation){
             return res.status(400).send({error: 'Invalid Parameters'})
         }
-
-        const _id = req.params.id
-
-        const user = await User.findById(_id)
+        
+        const user = await User.findById(req.user.id)
         updates.forEach((update) => {
             user[update] = req.body[update]
         })        
         await user.save()
 
-        if(!user){
-            res.status(401).send("There was an error while updating")
-        }
         res.send(user)
     }catch(e){
         res.status(401).send(e)
     }
 })
 
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/me', auth, async (req, res) => {
     try{
-        const _id = req.params.id
-        const user = await User.findByIdAndDelete(_id)
-
-        if(!user){
-            res.status(400).send("There was an error deleting the user")
-        }
-
-        res.send(user)
+        await req.user.deleteOne()
+        res.send(req.user)
 
     }catch(e){
 
