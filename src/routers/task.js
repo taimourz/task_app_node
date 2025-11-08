@@ -6,9 +6,30 @@ import {auth} from '../middleware/auth.js'
 router.get('/tasks', auth, async (req, res) => {
 
     try{
-        const _id = req.user._id
-        const tasks = await Task.find({owner: req.user._id})
-        res.send(tasks)
+
+        const match = {}
+        const sort  = {}
+
+        if(req.query.completed){
+            match.completed = req.query.completed === "true"
+        }
+
+        if(req.query.sortBy){
+            const parts = req.query.sortBy.split(':')
+            debugger
+            sort[parts[0]] = parts[1] === 'desc' ? -1 : 1
+        }
+
+        await req.user.populate({
+            path: 'tasks',
+            match,
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip),
+                sort
+            }
+        })
+        res.send(req.user.tasks)
     }catch(e){
         res.status(404).send()
     }
