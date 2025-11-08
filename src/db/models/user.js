@@ -2,6 +2,7 @@ import mongoose from "mongoose"
 import validator from 'validator'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import {Task} from '../models/task.js'
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -54,6 +55,13 @@ const userSchema = new mongoose.Schema({
 })
 
 
+
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
+})
+
 userSchema.methods.toJSON  = function() {
     const user = this
     const userObject = user.toObject()
@@ -98,6 +106,12 @@ userSchema.pre('save', async  function(next) {
     }
     console.log("This is done before saving")
     next()
+})
+
+userSchema.pre('deleteOne', { document: true, query: false }, async function(next) {
+    const user = this
+    await Task.deleteMany({owner: user._id})
+    next()    
 })
 
 

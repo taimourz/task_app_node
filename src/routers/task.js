@@ -1,21 +1,23 @@
 import express from 'express'
 const router = new express.Router()
 import {Task} from '../db/models/task.js'
+import {auth} from '../middleware/auth.js'
 
-router.get('/tasks', async (req, res) => {
+router.get('/tasks', auth, async (req, res) => {
 
     try{
-        const tasks = await Task.find({})
+        const _id = req.user._id
+        const tasks = await Task.find({owner: req.user._id})
         res.send(tasks)
     }catch(e){
         res.status(404).send()
     }
 })
 
-router.get('/tasks/:id', async (req, res) => {
+router.get('/tasks/:id', auth, async (req, res) => {
     try{
         const _id = req.params.id
-        const task = await Task.findById(_id)
+        const task = await Task.findOne({_id, owner: req.user._id})
         if(!task){
             return res.status(404).send()
         }
@@ -25,19 +27,24 @@ router.get('/tasks/:id', async (req, res) => {
     }
 })
 
-router.post('/tasks', async (req, res) =>{
+router.post('/tasks', auth, async (req, res) =>{
 
     try{
-        const task = new Task(req.body)
+        const task = new Task({
+            ...req.body,
+            owner: req.user._id
+            }
+        )
+
         await task.save()
         res.status(201).send("Task created sucessfully")
     }catch(e){
-        res.status(400).send("Error occured: " + error)
+        res.status(400).send("Error occured: " + e)
     }
 })
 
 
-router.patch('/tasks/:id', async (req, res) => {
+router.patch('/tasks/:id', auth, async (req, res) => {
 
     try{
 
@@ -49,14 +56,16 @@ router.patch('/tasks/:id', async (req, res) => {
             return res.status(400).send({error: "INvalid params"} )
         }
 
-        const _id = req.params.id
-        const task = await Task.findById(_id)
-        updates.forEach((update) => {task[update] = req.body[update]})
-        await task.save()
+
+        const task = await Task.findOne({_id: req.params.id, owner: req.user.id})
 
         if(!task){
             return res.status(401).send("There was an error updating the task")
         }
+
+        updates.forEach((update) => {task[update] = req.body[update]})
+        await task.save()
+
         res.send(task)
 
     }catch(e){
@@ -65,10 +74,9 @@ router.patch('/tasks/:id', async (req, res) => {
 })
 
 
-router.delete('/tasks/:id', async (req, res) => {
+router.delete('/tasks/:id', auth, async (req, res) => {
     try{
-        const _id = req.params.id
-        const task = await Task.findByIdAndDelete(_id)
+        const task = await Task.findOneAndDelete({_id: req.params.id, owner: req.user._id})
 
         if(!task){
             res.status(400).send("There was an error deleting the user")
