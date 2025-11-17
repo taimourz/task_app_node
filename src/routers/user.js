@@ -13,7 +13,6 @@ const upload = multer({
         if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
             return cb(new Error('Please upload a file type jpg, jpeg, png'))
         }
-        debugger
         cb(undefined, true) // everything went fine, so no need to send any error and accept the file
     }    
 
@@ -148,6 +147,8 @@ router.post('/users', async (req, res) => {
 
 router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
     res.send()
+}, (error, req, res, next) => {
+    res.status(400).send({error: error.message})
 })
 
 

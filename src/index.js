@@ -32,19 +32,20 @@ app.use(taskRouter)
 //     dest: 'images',
 //     limits: {
 //         fileSize: 1000000,
-//         fileFilter(req, file, cb){
-//             if(!file.orignalname.match(/\.(doc|docx)$/)){
-//                 return cb(new Error('Please upload a word document'))
-//             }
-
-//             cb(undefined, true) // everything went fine, so no need to send any error and accept the file
+//     },
+//     fileFilter(req, file, cb){
+//         if(!file.originalname.match(/\.(doc|docx)$/)){
+//             return cb(new Error('Please upload a word document'))
 //         }
-
+//         cb(undefined, true) // everything went fine, so no need to send any error and accept the file
 //     }
-
 // })
+
+
 // app.post('/upload', upload.single('upload'), (req, res) => {
 //     res.send()
+// }, (error, req, res, next) => {
+//     res.status(400).send({error: error.message})
 // })
 
 app.listen(port, () => {
