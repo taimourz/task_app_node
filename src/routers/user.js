@@ -2,6 +2,22 @@ import express from 'express'
 const router = new express.Router()
 import {User} from '../db/models/user.js'
 import {auth} from '../middleware/auth.js'
+import multer from 'multer'
+
+const upload = multer({
+    dest: 'avatars',
+    limits: {
+        fileSize: 1000000,
+    },
+    fileFilter(req, file, cb){
+        if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+            return cb(new Error('Please upload a file type jpg, jpeg, png'))
+        }
+        debugger
+        cb(undefined, true) // everything went fine, so no need to send any error and accept the file
+    }    
+
+})
 
 router.get('/test', (req, res) => {
     res.send("This should work")
@@ -129,6 +145,11 @@ router.post('/users', async (req, res) => {
         res.status(400).send(e.message)
     }
 })
+
+router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+    res.send()
+})
+
 
 
 export default router
