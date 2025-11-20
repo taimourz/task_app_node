@@ -81,7 +81,7 @@ userSchema.methods.toJSON  = function() {
 userSchema.methods.generateToken = function() {
     const user = this
 
-    const token = jwt.sign({_id: user.id.toString()}, 'randomsecret', {expiresIn: '7 days'})
+    const token = jwt.sign({_id: user.id.toString()}, process.env.JWT_SECRET, {expiresIn: '7 days'})
     user.tokens = user.tokens.concat({token: token})
 
     return token
