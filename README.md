@@ -194,5 +194,3 @@ task-manager/
 - File upload size limits (1MB)
 - File type validation for uploads
 - Automatic cleanup of related data on user deletion
-
-[Your Name]

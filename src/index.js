@@ -23,6 +23,15 @@ const port = process.env.PORT
 // })
 
 app.use(express.json())
+
+app.get('/', (req, res) => {
+    res.send('webapp endpoint for aws blog')
+})
+
+app.get('/node', (req, res) => {
+    res.send('node endponint for aws blog')
+})
+
 app.use(userRouter)
 app.use(taskRouter)
 
